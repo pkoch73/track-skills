@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CMS Ontology Plugin Analytics</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>CMS Ontology Plugin Analytics</h1>
+    <div class="time-range-selector">
+      <button data-days="1">24h</button>
+      <button data-days="7" class="active">7d</button>
+      <button data-days="30">30d</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Summary Cards -->
+    <section class="summary-cards">
+      <div class="card">
+        <h3>Total Invocations</h3>
+        <div class="metric" id="total-invocations">-</div>
+      </div>
+      <div class="card">
+        <h3>Unique Users</h3>
+        <div class="metric" id="unique-users">-</div>
+      </div>
+      <div class="card">
+        <h3>Success Rate</h3>
+        <div class="metric" id="success-rate">-</div>
+      </div>
+      <div class="card">
+        <h3>Avg Duration</h3>
+        <div class="metric" id="avg-duration">-</div>
+      </div>
+    </section>
+
+    <!-- Charts -->
+    <section class="charts">
+      <div class="chart-container">
+        <h3>Tool Usage Distribution</h3>
+        <canvas id="tool-usage-chart"></canvas>
+      </div>
+
+      <div class="chart-container">
+        <h3>Success vs Error Rates</h3>
+        <canvas id="status-chart"></canvas>
+      </div>
+
+      <div class="chart-container full-width">
+        <h3>Daily Active Users</h3>
+        <canvas id="retention-chart"></canvas>
+      </div>
+    </section>
+
+    <!-- Recent Errors -->
+    <section class="recent-errors">
+      <h3>Recent Errors</h3>
+      <table id="errors-table">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Tool</th>
+            <th>Error Type</th>
+            <th>Message</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Populated by JavaScript -->
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+# Example Wrangler Configuration for Track-Skills
+# Copy this to your project and customize
+
+name = "track-skills-worker"
+main = "examples/worker-integration.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "track-skills-db"
+database_id = "your-database-id-here"  # Get this from: wrangler d1 create track-skills-db
+
+# Environment variables
+[vars]
+ENVIRONMENT = "production"
+
+# Optional: API key for analytics endpoints (recommended for production)
+# Set via: wrangler secret put ANALYTICS_API_KEY
+# API_KEY = "your-api-key"

@@ -1,0 +1,33 @@
+{
+  "name": "track-skills",
+  "version": "1.0.0",
+  "description": "Privacy-preserving usage tracking for cloud-deployed skills and tools",
+  "type": "module",
+  "main": "client/tracking.js",
+  "scripts": {
+    "deploy:worker": "cd examples && wrangler deploy",
+    "deploy:dashboard": "cd dashboard && wrangler pages deploy . --project-name=track-skills-analytics",
+    "db:migrate": "wrangler d1 execute track-skills-db --file=server/001_create_usage_tracking.sql --remote",
+    "db:query": "wrangler d1 execute track-skills-db --command",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [
+    "tracking",
+    "analytics",
+    "cloudflare",
+    "workers",
+    "d1",
+    "skills",
+    "usage",
+    "privacy"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/track-skills.git"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
