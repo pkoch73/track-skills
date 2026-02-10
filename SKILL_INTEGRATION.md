@@ -10,7 +10,18 @@ Every time your skill runs, you'll automatically capture:
 - ✅ What error occurred (if any)
 - ✅ Anonymous user identification
 
-## The Pattern
+## Choose Your Approach
+
+Track Skills supports two integration methods:
+
+1. **JavaScript (Programmatic)** - For JavaScript/TypeScript skills (see below)
+2. **Bash (SKILL.md)** - For Claude Code/Cowork skills (see [Bash Integration](#bash-integration-skillmd))
+
+---
+
+## JavaScript Integration (Programmatic Skills)
+
+### The Pattern
 
 **Step 1:** Import the tracking wrapper
 ```javascript
@@ -225,6 +236,219 @@ Tracking uses try-catch to fail silently. If your skill breaks, it's likely an i
 
 ---
 
-**That's all you need!** Three simple steps per skill, and you're tracking usage analytics.
+## Bash Integration (SKILL.md)
 
-For setup instructions (database, Worker endpoints, dashboard), see [QUICKSTART.md](QUICKSTART.md).
+For **Claude Code** or **Cowork** skills defined in SKILL.md files, use the bash helper script approach.
+
+### Setup (One-Time)
+
+**Step 1:** Create `skills/_track.sh` helper script:
+
+```bash
+#!/bin/bash
+# Skill usage tracking helper
+# Usage: bash skills/_track.sh <tool_name>
+
+TOOL_NAME=$1
+
+curl -X POST "https://your-worker.workers.dev/api/track" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer ${CONTENT_ONTOLOGY_API_KEY}" \
+  -d "{\"tool_name\":\"$TOOL_NAME\",\"duration_ms\":100,\"status\":\"success\",\"tool_category\":\"your_category\"}" \
+  2>/dev/null &
+```
+
+**Step 2:** Make it executable:
+```bash
+chmod +x skills/_track.sh
+```
+
+**Step 3:** (Optional) Set environment variable:
+```bash
+export CONTENT_ONTOLOGY_API_KEY="your-api-key"
+```
+
+### Adding Tracking to Each Skill
+
+Add a bash block to your SKILL.md file:
+
+**Before:**
+```markdown
+---
+name: query-content
+description: Search content inventory
+---
+
+# Query Content
+
+Search the content inventory by topic, type, or stage.
+```
+
+**After:**
+```markdown
+---
+name: query-content
+description: Search content inventory
+---
+
+# Query Content
+
+```bash
+bash skills/_track.sh query_content
+```
+
+Search the content inventory by topic, type, or stage.
+```
+
+**That's it!** Only **2 lines** needed per skill.
+
+### Complete Example
+
+```markdown
+---
+name: generate-content-brief
+description: Generate AI-powered content briefs
+---
+
+# Generate Content Brief
+
+```bash
+bash skills/_track.sh generate_content_brief
+```
+
+Generate a context-aware content brief based on existing brand patterns, topics, and audience data from the content ontology.
+
+## When to Use This Skill
+
+Use this skill when you need to:
+- Create a new piece of content
+- Get AI suggestions based on proven patterns
+- Understand what topics to cover
+```
+
+### How It Works
+
+1. **Skill Invoked** - User asks Claude to use the skill
+2. **Claude Reads SKILL.md** - Processes the markdown file
+3. **Bash Block Executes** - Runs `skills/_track.sh` automatically
+4. **Helper Script Calls API** - Sends tracking data in background
+5. **API Logs to D1** - Event stored in database
+6. **Skill Continues** - Main skill logic runs normally
+
+**Key Benefits:**
+- ✅ **Non-blocking** - Runs in background (`&`)
+- ✅ **Fail-silent** - Skills work even if tracking fails (`2>/dev/null`)
+- ✅ **Centralized** - One helper script for all skills
+- ✅ **Simple** - No code changes, just markdown
+
+### Naming Convention
+
+Use **snake_case** for tool names:
+- ✅ `query_content`
+- ✅ `generate_content_brief`
+- ✅ `get_brand_context`
+- ❌ `query-content` (avoid hyphens)
+- ❌ `queryContent` (avoid camelCase)
+
+### Verify It's Working
+
+After adding tracking:
+
+**1. Test the helper script directly:**
+```bash
+bash skills/_track.sh test_skill
+```
+
+**2. Check the database:**
+```bash
+wrangler d1 execute your-db --command \
+  "SELECT tool_name, status, timestamp FROM skill_usage_events ORDER BY timestamp DESC LIMIT 5" \
+  --remote
+```
+
+**3. View the dashboard:**
+Visit your analytics dashboard to see real-time metrics.
+
+### Troubleshooting
+
+**Tracking not appearing?**
+
+1. **Test API endpoint directly:**
+```bash
+curl -X POST "https://your-worker.workers.dev/api/track" \
+  -H "Content-Type: application/json" \
+  -d '{"tool_name":"test","duration_ms":100,"status":"success","tool_category":"test"}'
+```
+
+Expected: `{"success":true,"message":"Event tracked"}`
+
+2. **Check bash block syntax:**
+```markdown
+```bash
+bash skills/_track.sh tool_name
+```
+```
+
+Make sure:
+- Triple backticks are correct
+- `bash` language identifier is present
+- Path is `skills/_track.sh`
+- Tool name uses underscores
+
+3. **Verify helper script location:**
+```bash
+ls -la skills/_track.sh
+```
+
+Should be executable (`-rwxr-xr-x`).
+
+**Proxy blocking requests?**
+
+If using Cowork, the proxy may block external domains. Two solutions:
+
+1. **Use Claude Code instead** - No proxy restrictions
+2. **Implement server-side tracking** - Track at MCP protocol level
+
+### Environment Variables (Optional)
+
+Set `CONTENT_ONTOLOGY_API_KEY` for authenticated tracking:
+
+**Bash/Zsh:**
+```bash
+echo 'export CONTENT_ONTOLOGY_API_KEY="your-api-key"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**Note:** Currently optional if your API doesn't enforce authentication.
+
+### Multiple Skills
+
+Just repeat the pattern for each skill:
+
+```markdown
+<!-- skills/skill-a/SKILL.md -->
+```bash
+bash skills/_track.sh skill_a
+```
+
+<!-- skills/skill-b/SKILL.md -->
+```bash
+bash skills/_track.sh skill_b
+```
+
+<!-- skills/skill-c/SKILL.md -->
+```bash
+bash skills/_track.sh skill_c
+```
+```
+
+Each skill tracks independently with its own metrics.
+
+---
+
+**That's all you need!**
+
+- **JavaScript approach**: Three simple steps per skill
+- **Bash approach**: Two lines per SKILL.md file
+
+For setup instructions (database, Worker endpoints, dashboard), see the [main README](README.md).

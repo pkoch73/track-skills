@@ -1,10 +1,10 @@
 # Track Skills
 
-A complete, privacy-preserving usage tracking system for cloud-deployed skills and tools. Built for Cloudflare Workers + D1, with client-side skill tracking and real-time analytics dashboard.
+A complete, privacy-preserving usage tracking system for cloud-deployed skills and tools. Built for Cloudflare Workers + D1, with flexible tracking options and real-time analytics dashboard.
 
 ## 🎯 Features
 
-- **Client-Side Tracking** - Track skill execution from within your code
+- **Flexible Integration** - Track from JavaScript code OR bash scripts in SKILL.md files
 - **Privacy-Preserving** - SHA-256 hashed user IDs (anonymous but consistent)
 - **Real-Time Analytics** - Live dashboard with Chart.js visualizations
 - **Cloudflare Native** - Workers, D1 database, Pages hosting
@@ -22,9 +22,9 @@ A complete, privacy-preserving usage tracking system for cloud-deployed skills a
 ## 🏗️ Architecture
 
 ```
-Skill Execution (Client)
+Skill Execution
     ↓
-trackSkillExecution() wrapper
+Tracking (JavaScript wrapper OR bash helper)
     ↓
 Skill logic runs
     ↓
@@ -37,6 +37,15 @@ Analytics API (/analytics/*)
 Dashboard visualizes data
 ```
 
+## 🔀 Two Integration Approaches
+
+Track Skills supports **two ways** to integrate tracking:
+
+1. **JavaScript (Programmatic)** - Wrap skill functions with `trackSkillExecution()`
+2. **Bash (SKILL.md)** - Add bash block that calls helper script
+
+Choose the approach that fits your skill architecture.
+
 ## 📁 Project Structure
 
 ```
@@ -47,7 +56,8 @@ track-skills/
 ├── analytics/           # Analytics queries
 │   └── analytics.js                # Summary, tools, retention, errors
 ├── client/              # Client-side tracking
-│   └── tracking.js                 # Skill execution wrapper
+│   ├── tracking.js                 # JavaScript wrapper (programmatic)
+│   └── _track.sh                   # Bash helper (SKILL.md)
 ├── dashboard/           # Analytics dashboard
 │   ├── index.html                  # Dashboard UI
 │   ├── app.js                      # Dashboard logic
@@ -55,6 +65,7 @@ track-skills/
 │   └── _headers                    # CORS configuration
 └── docs/                # Documentation
     ├── INTEGRATION_GUIDE.md        # How to integrate
+    ├── SKILL_INTEGRATION.md        # SKILL.md bash integration
     └── API.md                      # API reference
 ```
 
@@ -112,7 +123,7 @@ if (url.pathname === '/analytics/summary') {
 // Add other analytics endpoints (tools, retention, errors)
 ```
 
-### 3. Add Client-Side Tracking
+### 3a. Add Client-Side Tracking (JavaScript Approach)
 
 In your skill file:
 
@@ -131,6 +142,27 @@ export async function mySkill(params, context) {
 }
 ```
 
+### 3b. Add Client-Side Tracking (Bash/SKILL.md Approach)
+
+In your SKILL.md file:
+
+```markdown
+---
+name: my-skill-name
+description: What this skill does
+---
+
+# My Skill Name
+
+```bash
+bash skills/_track.sh my_skill_name
+```
+
+Your skill description here...
+```
+
+**That's it!** Only 2 lines needed for bash integration.
+
 ### 4. Deploy Dashboard
 
 ```bash
@@ -141,7 +173,7 @@ wrangler pages deploy . --project-name=my-analytics
 
 ## 📖 Integration Guide
 
-### Example: Adding Tracking to a Skill
+### Approach 1: JavaScript (Programmatic Skills)
 
 **Before:**
 ```javascript
@@ -170,6 +202,57 @@ That's it! The skill now logs:
 - ✅ Success/failure status
 - ✅ Parameters used
 - ✅ Result metadata
+
+### Approach 2: Bash (SKILL.md Files)
+
+**For Claude Code/Cowork skills**, add a bash block to your SKILL.md:
+
+**Before:**
+```markdown
+---
+name: query-content
+description: Search content inventory
+---
+
+# Query Content
+
+Search the content inventory...
+```
+
+**After:**
+```markdown
+---
+name: query-content
+description: Search content inventory
+---
+
+# Query Content
+
+```bash
+bash skills/_track.sh query_content
+```
+
+Search the content inventory...
+```
+
+**Setup Required:**
+
+1. Create `skills/_track.sh`:
+```bash
+#!/bin/bash
+TOOL_NAME=$1
+curl -X POST "https://your-worker.workers.dev/api/track" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer ${API_KEY}" \
+  -d "{\"tool_name\":\"$TOOL_NAME\",\"duration_ms\":100,\"status\":\"success\",\"tool_category\":\"your_category\"}" \
+  2>/dev/null &
+```
+
+2. Make it executable: `chmod +x skills/_track.sh`
+
+**That's it!** Only 2 lines per skill for bash integration.
+
+See [SKILL_INTEGRATION.md](docs/SKILL_INTEGRATION.md) for complete bash integration guide.
 
 ## 📊 Analytics Dashboard
 
