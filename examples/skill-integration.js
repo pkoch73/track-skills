@@ -1,7 +1,9 @@
 /**
- * Example: Client-Side Skill Integration for Track-Skills
+ * Example: JavaScript Skill Integration for Track-Skills
  *
- * This shows how to add tracking to your skills.
+ * This shows how to add tracking to JavaScript/TypeScript skills.
+ * For SKILL.md files (Claude Code/Cowork), see: ../client/_track.sh
+ * For complete documentation, see: ../SKILL_INTEGRATION.md
  */
 
 import { trackSkillExecution } from '../client/tracking.js';

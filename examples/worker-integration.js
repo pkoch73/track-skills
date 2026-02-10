@@ -2,6 +2,11 @@
  * Example: Cloudflare Worker Integration for Track-Skills
  *
  * This shows how to integrate the tracking system into your Worker.
+ * This applies to BOTH JavaScript and Bash tracking approaches.
+ *
+ * The /api/track endpoint receives tracking data from:
+ * - JavaScript skills (via trackSkillExecution wrapper)
+ * - Bash scripts (via skills/_track.sh helper)
  */
 
 import { hashUserId } from '../server/tracking-utils.js';
