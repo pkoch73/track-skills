@@ -43,6 +43,8 @@ wrangler deploy
 
 ## Step 3: Add Tracking to Your Skills (2 min)
 
+### Option A: JavaScript Skills
+
 In your skill file:
 
 ```javascript
@@ -57,6 +59,22 @@ async function mySkillImpl(params, context) {
 export async function mySkill(params, context) {
   return trackSkillExecution('my_skill', mySkillImpl, params, context);
 }
+```
+
+### Option B: SKILL.md Files (Claude Code/Cowork)
+
+1. Copy helper script:
+```bash
+cp track-skills/client/_track.sh your-project/skills/_track.sh
+```
+
+2. Customize endpoint in `skills/_track.sh`
+
+3. Add to each SKILL.md:
+```markdown
+```bash
+bash skills/_track.sh my_skill_name
+```
 ```
 
 ## Step 4: Deploy Dashboard (1 min)
