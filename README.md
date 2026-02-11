@@ -37,13 +37,14 @@ Analytics API (/analytics/*)
 Dashboard visualizes data
 ```
 
-## 🔀 Three Integration Approaches
+## 🔀 Four Integration Approaches
 
-Track Skills supports **three ways** to integrate tracking:
+Track Skills supports **four ways** to integrate tracking:
 
 1. **JavaScript (Programmatic)** - Wrap skill functions with `trackSkillExecution()`
 2. **Bash (SKILL.md)** - Add bash block that calls helper script
 3. **PostToolUse Hook (Automatic)** - Zero-effort automatic tracking via Claude Code hooks
+4. **PostToolUse Hook (Plugin)** - Bundle hook with plugin for zero-config installation
 
 Choose the approach that fits your skill architecture and workflow.
 
