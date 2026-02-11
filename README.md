@@ -4,7 +4,7 @@ A complete, privacy-preserving usage tracking system for cloud-deployed skills a
 
 ## 🎯 Features
 
-- **Flexible Integration** - Track from JavaScript code OR bash scripts in SKILL.md files
+- **Flexible Integration** - Track from JavaScript code, bash scripts, OR automatic hooks
 - **Privacy-Preserving** - SHA-256 hashed user IDs (anonymous but consistent)
 - **Real-Time Analytics** - Live dashboard with Chart.js visualizations
 - **Cloudflare Native** - Workers, D1 database, Pages hosting
@@ -37,14 +37,15 @@ Analytics API (/analytics/*)
 Dashboard visualizes data
 ```
 
-## 🔀 Two Integration Approaches
+## 🔀 Three Integration Approaches
 
-Track Skills supports **two ways** to integrate tracking:
+Track Skills supports **three ways** to integrate tracking:
 
 1. **JavaScript (Programmatic)** - Wrap skill functions with `trackSkillExecution()`
 2. **Bash (SKILL.md)** - Add bash block that calls helper script
+3. **PostToolUse Hook (Automatic)** - Zero-effort automatic tracking via Claude Code hooks
 
-Choose the approach that fits your skill architecture.
+Choose the approach that fits your skill architecture and workflow.
 
 ## 📁 Project Structure
 
@@ -63,9 +64,13 @@ track-skills/
 │   ├── app.js                      # Dashboard logic
 │   ├── styles.css                  # Dashboard styles
 │   └── _headers                    # CORS configuration
+├── examples/            # Integration examples
+│   ├── posttooluse-hook.sh         # Hook template
+│   └── claude-settings.json        # Hook configuration example
 └── docs/                # Documentation
     ├── INTEGRATION_GUIDE.md        # How to integrate
     ├── SKILL_INTEGRATION.md        # SKILL.md bash integration
+    ├── HOOK_INTEGRATION.md         # PostToolUse hook integration
     └── API.md                      # API reference
 ```
 
@@ -163,6 +168,36 @@ Your skill description here...
 
 **That's it!** Only 2 lines needed for bash integration.
 
+### 3c. Add Client-Side Tracking (PostToolUse Hook - Automatic)
+
+**For zero-effort automatic tracking** in Claude Code:
+
+1. Copy hook script:
+```bash
+cp track-skills/examples/posttooluse-hook.sh .claude/hooks/track-skill.sh
+chmod +x .claude/hooks/track-skill.sh
+```
+
+2. Customize endpoint in `.claude/hooks/track-skill.sh`
+
+3. Add hook configuration to `.claude/settings.json`:
+```json
+{
+  "hooks": {
+    "PostToolUse": [{
+      "matcher": "mcp__.*",
+      "hooks": [{
+        "type": "command",
+        "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/track-skill.sh",
+        "timeout": 5
+      }]
+    }]
+  }
+}
+```
+
+**That's it!** All skills now auto-tracked. See [HOOK_INTEGRATION.md](HOOK_INTEGRATION.md) for details.
+
 ### 4. Deploy Dashboard
 
 ```bash
@@ -252,7 +287,40 @@ curl -X POST "https://your-worker.workers.dev/api/track" \
 
 **That's it!** Only 2 lines per skill for bash integration.
 
-See [SKILL_INTEGRATION.md](docs/SKILL_INTEGRATION.md) for complete bash integration guide.
+See [SKILL_INTEGRATION.md](SKILL_INTEGRATION.md) for complete bash integration guide.
+
+### Approach 3: PostToolUse Hook (Automatic - Zero Effort)
+
+**For automatic tracking with zero per-skill effort:**
+
+Add this configuration to `.claude/settings.json` in your project:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [{
+      "matcher": "mcp__.*",
+      "hooks": [{
+        "type": "command",
+        "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/track-skill.sh",
+        "timeout": 5
+      }]
+    }]
+  }
+}
+```
+
+Create `.claude/hooks/track-skill.sh` (copy from [examples/posttooluse-hook.sh](examples/posttooluse-hook.sh) and customize).
+
+**That's it!** All current and future skills are automatically tracked.
+
+**Benefits:**
+- ✅ Zero effort per skill
+- ✅ Works in Claude Code AND Cowork
+- ✅ New skills auto-tracked
+- ✅ Team-friendly (no tracking code needed)
+
+See [HOOK_INTEGRATION.md](HOOK_INTEGRATION.md) for complete hook integration guide.
 
 ## 📊 Analytics Dashboard
 
